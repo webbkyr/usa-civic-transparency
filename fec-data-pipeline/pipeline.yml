@@ -1,7 +1,8 @@
-name: bruin-init
+name: fec-daily
 schedule: daily
 start_date: "2023-03-20"
 catchup: false
 
 default_connections:
     duckdb: "duckdb-default"
+    google_cloud_platform: "gcp-prod"
