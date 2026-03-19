@@ -127,48 +127,10 @@ def _download_to_path(url: str, path: str) -> None:
                     f.write(chunk)
 
 
-def _to_int_nullable(s: str | None, *, scale_if_decimal: int) -> int | None:
-    """
-    Convert FEC fixed-width Number(p,s) string -> integer.
-
-    If the field contains an explicit decimal point, multiply by `scale_if_decimal`.
-    If it does not contain a decimal point, treat it as already scaled (implied decimals).
-    """
-    if s is None:
-        return None
-    s = str(s).strip()
-    if not s:
-        return None
-
-    # FEC fixed-width numeric fields generally have no thousands separators,
-    # but be defensive.
-    s = s.replace(",", "")
-
-    # Handle sign.
-    sign = -1 if s.startswith("-") else 1
-    if s[0] in "+-":
-        s = s[1:]
-
-    if not s:
-        return None
-
-    try:
-        if "." in s:
-            dec = Decimal(s)
-            scaled = dec * scale_if_decimal
-            return sign * int(scaled.to_integral_value(rounding=ROUND_HALF_UP))
-        # No decimal point => already scaled (implied decimal digits).
-        return sign * int(s)
-    except (InvalidOperation, ValueError):
-        return None
-
-
 def materialize() -> pd.DataFrame:
     """
     Load the FEC "All candidates file" (webl26.txt) into `congressional_campaigns`.
     """
-    print(os.getcwd())
-
 
     zip_file_path = 'webl26-2026-03-18.zip'
     text_file_name = 'webl26.txt' # Name of the structured text file inside the zip
