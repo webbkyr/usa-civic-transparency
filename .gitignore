@@ -6,3 +6,10 @@ __pycache__/
 gcp.json
 *.zip
 duckdb.db
+.env
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
