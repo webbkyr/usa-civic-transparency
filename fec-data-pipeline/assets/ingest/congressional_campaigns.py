@@ -1,14 +1,11 @@
 """@bruin
-name: ingestion.congressional_campaigns
-connection: duckdb-default
+name: ingest.congressional_campaigns
+connection: warehouse
 materialization:
   type: table
-  table_name: congressional_campaigns
-  strategy: append
+  table_name: raw.congressional_campaigns
+  strategy: create+replace
 image: python:3.11
-secrets:
-  - key: duckdb-default
-    inject_as: duckdb-default
 columns:
   - name: CAND_ID
     type: string
@@ -116,7 +113,6 @@ import zipfile
 WEBL26_ZIP_URL = "https://www.fec.gov/files/bulk-downloads/2026/webl26.zip"
 
 def _download_to_path(url: str, path: str) -> None:
-    # Stream download to avoid loading the full zip in memory.
     with requests.get(url, stream=True, timeout=120) as r:
         r.raise_for_status()
         with open(path, "wb") as f:
@@ -140,7 +136,6 @@ def _to_int_nullable(s: str | None, *, scale_if_decimal: int) -> int | None:
 
     s = s.replace(",", "")
 
-    # Handle sign.
     sign = -1 if s.startswith("-") else 1
     if s[0] in "+-":
         s = s[1:]
