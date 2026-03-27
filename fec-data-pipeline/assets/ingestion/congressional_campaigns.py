@@ -4,7 +4,7 @@ connection: duckdb-default
 materialization:
   type: table
   table_name: congressional_campaigns
-  strategy: merge
+  strategy: append
 image: python:3.11
 secrets:
   - key: duckdb-default
@@ -113,9 +113,7 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import tempfile
 import zipfile
 
-
 WEBL26_ZIP_URL = "https://www.fec.gov/files/bulk-downloads/2026/webl26.zip"
-
 
 def _download_to_path(url: str, path: str) -> None:
     # Stream download to avoid loading the full zip in memory.
@@ -127,14 +125,47 @@ def _download_to_path(url: str, path: str) -> None:
                     f.write(chunk)
 
 
+def _to_int_nullable(s: str | None, *, scale_if_decimal: int) -> int | None:
+    """
+    Convert FEC fixed-width Number(p,s) string -> integer.
+
+    If the field contains an explicit decimal point, multiply by `scale_if_decimal`.
+    If it does not contain a decimal point, treat it as already scaled (implied decimals).
+    """
+    if s is None:
+        return None
+    s = str(s).strip()
+    if not s:
+        return None
+
+    s = s.replace(",", "")
+
+    # Handle sign.
+    sign = -1 if s.startswith("-") else 1
+    if s[0] in "+-":
+        s = s[1:]
+
+    if not s:
+        return None
+
+    try:
+        if "." in s:
+            dec = Decimal(s)
+            scaled = dec * scale_if_decimal
+            return sign * int(scaled.to_integral_value(rounding=ROUND_HALF_UP))
+        # No decimal point => already scaled (implied decimal digits).
+        return sign * int(s)
+    except (InvalidOperation, ValueError):
+        return None
+
+
 def materialize() -> pd.DataFrame:
     """
     Load the FEC "All candidates file" (webl26.txt) into `congressional_campaigns`.
     """
 
-    zip_file_path = 'webl26-2026-03-18.zip'
+    # zip_file_path = 'webl26-2026-03-18.zip'
     text_file_name = 'webl26.txt' # Name of the structured text file inside the zip
-
     column_names = [
                 "CAND_ID",
                 "CAND_NAME",
@@ -168,86 +199,90 @@ def materialize() -> pd.DataFrame:
                 "CMTE_REFUNDS",
             ]
 
-    with zipfile.ZipFile(zip_file_path) as z:
-        with z.open(text_file_name) as f:
-            df = pd.read_csv(f, sep='|', header=None, names=column_names)
+    with tempfile.TemporaryDirectory() as tmpdir:
+      zip_file_path = os.path.join(tmpdir, "webl26.zip")
+      _download_to_path(WEBL26_ZIP_URL, zip_file_path)
 
-        str_cols = [
-            "CAND_ID",
-            "CAND_NAME",
-            "CAND_ICI",
-            "PTY_CD",
-            "CAND_PTY_AFFILIATION",
-            "CAND_OFFICE_ST",
-            "CAND_OFFICE_DISTRICT",
-            "SPEC_ELECTION",
-            "PRIM_ELECTION",
-            "RUN_ELECTION",
-        ]
-        for c in str_cols:
-          df[c] = df[c].fillna("").astype("string").str.strip()
+      with zipfile.ZipFile(zip_file_path) as z:
+          with z.open(text_file_name) as f:
+              df = pd.read_csv(f, sep='|', header=None, names=column_names)
 
-        two_dec_cols = [
-            "TTL_RECEIPTS",
-            "TRANS_FROM_AUTH",
-            "TTL_DISB",
-            "TRANS_TO_AUTH",
-            "COH_BOP",
-            "COH_COP",
-            "CAND_CONTRIB",
-            "CAND_LOANS",
-            "OTHER_LOANS",
-            "CAND_LOAN_REPAY",
-            "OTHER_LOAN_REPAY",
-            "DEBTS_OWED_BY",
-            "TTL_INDIV_CONTRIB",
-            "OTHER_POL_CMTE_CONTRIB",
-            "POL_PTY_CONTRIB",
-            "INDIV_REFUNDS",
-            "CMTE_REFUNDS",
-        ]
+          str_columns = [
+              "CAND_ID",
+              "CAND_NAME",
+              "CAND_ICI",
+              "PTY_CD",
+              "CAND_PTY_AFFILIATION",
+              "CAND_OFFICE_ST",
+              "CAND_OFFICE_DISTRICT",
+              "SPEC_ELECTION",
+              "PRIM_ELECTION",
+              "RUN_ELECTION",
+          ]
+          for c in str_columns:
+            df[c] = df[c].fillna("").astype("string").str.strip()
 
-        for c in two_dec_cols:
-            df[c] = df[c].map(lambda v: _to_int_nullable(v, scale_if_decimal=100)).astype("Int64")
+          two_dec_columns = [
+              "TTL_RECEIPTS",
+              "TRANS_FROM_AUTH",
+              "TTL_DISB",
+              "TRANS_TO_AUTH",
+              "COH_BOP",
+              "COH_COP",
+              "CAND_CONTRIB",
+              "CAND_LOANS",
+              "OTHER_LOANS",
+              "CAND_LOAN_REPAY",
+              "OTHER_LOAN_REPAY",
+              "DEBTS_OWED_BY",
+              "TTL_INDIV_CONTRIB",
+              "OTHER_POL_CMTE_CONTRIB",
+              "POL_PTY_CONTRIB",
+              "INDIV_REFUNDS",
+              "CMTE_REFUNDS",
+          ]
 
-        df["GEN_ELECTION_PRECENT"] = (
-            df["GEN_ELECTION_PRECENT"]
-            .map(lambda v: _to_int_nullable(v, scale_if_decimal=10000))
-            .astype("Int64")
-        )
+          for c in two_dec_columns:
+              df[c] = df[c].map(lambda v: _to_int_nullable(v, scale_if_decimal=100)).astype("Int64")
 
-        df["CVG_END_DT"] = pd.to_datetime(df["CVG_END_DT"].str.strip(), format="%m/%d/%Y", errors="coerce")
+          df["GEN_ELECTION_PRECENT"] = (
+              df["GEN_ELECTION_PRECENT"]
+              .map(lambda v: _to_int_nullable(v, scale_if_decimal=10000))
+              .astype("Int64")
+          )
 
-        out_cols = [
-            "CAND_ID",
-            "CAND_NAME",
-            "CAND_ICI",
-            "PTY_CD",
-            "CAND_PTY_AFFILIATION",
-            "TTL_RECEIPTS",
-            "TRANS_FROM_AUTH",
-            "TTL_DISB",
-            "TRANS_TO_AUTH",
-            "COH_BOP",
-            "COH_COP",
-            "CAND_CONTRIB",
-            "CAND_LOANS",
-            "OTHER_LOANS",
-            "CAND_LOAN_REPAY",
-            "OTHER_LOAN_REPAY",
-            "DEBTS_OWED_BY",
-            "TTL_INDIV_CONTRIB",
-            "CAND_OFFICE_ST",
-            "CAND_OFFICE_DISTRICT",
-            "SPEC_ELECTION",
-            "PRIM_ELECTION",
-            "RUN_ELECTION",
-            "GEN_ELECTION",
-            "GEN_ELECTION_PRECENT",
-            "OTHER_POL_CMTE_CONTRIB",
-            "POL_PTY_CONTRIB",
-            "CVG_END_DT",
-            "INDIV_REFUNDS",
-            "CMTE_REFUNDS",
-        ]
-        return df[out_cols]
+          df["CVG_END_DT"] = pd.to_datetime(df["CVG_END_DT"].str.strip(), format="%m/%d/%Y", errors="coerce")
+
+          out_columns = [
+              "CAND_ID",
+              "CAND_NAME",
+              "CAND_ICI",
+              "PTY_CD",
+              "CAND_PTY_AFFILIATION",
+              "TTL_RECEIPTS",
+              "TRANS_FROM_AUTH",
+              "TTL_DISB",
+              "TRANS_TO_AUTH",
+              "COH_BOP",
+              "COH_COP",
+              "CAND_CONTRIB",
+              "CAND_LOANS",
+              "OTHER_LOANS",
+              "CAND_LOAN_REPAY",
+              "OTHER_LOAN_REPAY",
+              "DEBTS_OWED_BY",
+              "TTL_INDIV_CONTRIB",
+              "CAND_OFFICE_ST",
+              "CAND_OFFICE_DISTRICT",
+              "SPEC_ELECTION",
+              "PRIM_ELECTION",
+              "RUN_ELECTION",
+              "GEN_ELECTION",
+              "GEN_ELECTION_PRECENT",
+              "OTHER_POL_CMTE_CONTRIB",
+              "POL_PTY_CONTRIB",
+              "CVG_END_DT",
+              "INDIV_REFUNDS",
+              "CMTE_REFUNDS",
+          ]
+          return df[out_columns]
