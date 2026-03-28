@@ -1,0 +1,21 @@
+name: raw.report_type_lookup
+type: bq.seed
+parameters:
+  path: report_type_lookup.csv
+description: |
+  A list of report type codes that can be joined on committee contributions RPT_TP column.
+columns:
+  - name: code
+    type: VARCHAR
+    primary_key: true
+    nullable: false
+    checks:
+      - name: not_null
+      - name: unique
+  - name: description
+    type: VARCHAR
+    description: Human-readable description of the payment type
+    checks:
+      - name: not_null
+  - name: explanation
+    type: VARCHAR

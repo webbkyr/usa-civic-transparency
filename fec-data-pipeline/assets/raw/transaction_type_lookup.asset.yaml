@@ -1,0 +1,20 @@
+name: raw.transaction_type_lookup
+type: bq.seed
+parameters:
+  path: transaction_type_lookup.csv
+description: |
+  A list of transaction type codes that can be joined on committee contributions TRANSACTION_TP column.
+columns:
+  - name: code
+    type: VARCHAR
+    primary_key: true
+    nullable: false
+    checks:
+      - name: not_null
+      - name: unique
+  - name: description
+    type: VARCHAR
+    description: Human-readable description of the transaction type
+    checks:
+      - name: not_null
+

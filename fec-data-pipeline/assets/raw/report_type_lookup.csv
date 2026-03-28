@@ -1,0 +1,35 @@
+code,description,explanation
+12C,Pre-convention,For states using conventions to select candidates. Report covers through 20 days before the convention
+12G,Pre-general,Report covers through 20 days before the general election - due 12 days before the election
+12P,Pre-primary,Report covers through 20 days before the primary - due 12 days before the election
+12R,Pre-Runoff,Report covers through 20 days before the run-off - due 12 days before the election
+12S,Pre-special,Report covers through 20 days before the special election - due 12 days before the election
+30D,Post-Election,Report covers from 19 days before the election through 20 days after - due 30 days after
+30G,Post-general,Report covers from 19 days before through 20 days after - due 30 days after the election
+30P,Post-primary,Report covers from 19 days before through 20 days after - due 30 days after the election
+30R,Post-runoff,Report covers from 19 days before through 20 days after - due 30 days after the election
+30S,Post-special,Report covers from 19 days before through 20 days after - due 30 days after the election
+60D,Post-convention,Report filed by national party convention and host committees disclosing their convention expenses - due 60 days after
+ADJ,Comprehensive adjusted amendment,Adjustment of a comprehensive amendment - coverage is variable
+CA,Comprehensive amendment,Amendment modifying information from two or more original reports - coverage is variable
+M2,February monthly,Covers January - due February 20
+M3,March monthly,Covers February - due March 20
+M4,April monthly,Covers March - due April 20
+M5,May monthly,Covers April - due May 20
+M6,June monthly,Covers May - due June 20
+M7,July monthly,Covers June - due July 20
+M8,August monthly,Covers July - due August 20
+M9,September monthly,Covers August - due September 20
+M10,October monthly,Covers September - due October 20
+M11,November monthly,Covers October - due November 20
+M12,December monthly,Covers November - due December 20
+MY,Mid-year,Covers January 1 through June 30 - due July 31
+Q1,April quarterly,Covers January 1 through March 31 - due April 15
+Q2,July quarterly,Covers April 1 through June 30 - due July 15
+Q3,October quarterly,Covers July 1 through September 30 - due October 15
+TER,Termination,Final report submitted by a committee - coverage is variable
+YE,Year end,Covers from the end of the last quarterly or mid-year report through December 31 - due January 31
+90S,Post inaugural supplement,Supplemental filing of Presidential inaugural committee
+90D,Post inaugural,Filing of Presidential inaugural committee - due 90 days after the Inauguration
+48H,48-hour,Reports for contributions of $1000 or more or independent expenditures exceeding $10000
+24H,24-hour,Reports for independent expenditures exceeding $1000 within 20 days of election

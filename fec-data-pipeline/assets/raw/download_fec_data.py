@@ -1,5 +1,5 @@
 """@bruin
-name: ingest.download_fec_data
+name: raw.download_fec_data
 type: python
 description: "Download FEC bulk data files that drive the campaign contribution transparency dashboard."
 depends: []
