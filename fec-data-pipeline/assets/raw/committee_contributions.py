@@ -87,7 +87,6 @@ import json
 import os
 import zipfile
 from datetime import datetime, timezone
-# from helpers import GCS_BUCKET, gcs_client
 
 import pandas as pd
 from google.cloud import storage

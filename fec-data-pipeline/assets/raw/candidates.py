@@ -67,7 +67,6 @@ import zipfile
 from datetime import datetime, timezone
 
 import pandas as pd
-# from helpers import GCS_BUCKET, gcs_client
 from google.cloud import storage
 from google.oauth2 import service_account
 
