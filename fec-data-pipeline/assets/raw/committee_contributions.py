@@ -82,6 +82,7 @@ columns:
     description: FEC record number (unique)
 @bruin"""
 
+# Non-individual contributions (via committees) to candidates or spending to advocate or oppose a candidate.
 import io
 import json
 import os

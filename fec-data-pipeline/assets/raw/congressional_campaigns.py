@@ -105,6 +105,9 @@ columns:
     description: Refunds to committees (USD)
 @bruin"""
 
+# Summary financial information for each House/Senate campaign committee.
+# One record per.
+
 import io
 import json
 import os
