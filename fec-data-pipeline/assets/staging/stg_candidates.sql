@@ -3,10 +3,8 @@ name: staging.stg_candidates
 type: bq.sql
 depends:
 - raw.candidates
-
 materialization:
   type: table
-
 columns:
   - name: id
     type: VARCHAR
@@ -51,28 +49,27 @@ columns:
 @bruin */
  -- cleaned, filtered, renamed
 
-
 SELECT 
   cand_id as id,
   SPLIT(cand_name, ',')[SAFE_OFFSET(0)] AS last_name,
   SPLIT(cand_name, ',')[SAFE_OFFSET(1)] AS given_name,
   cand_pty_affiliation as party,
   cand_election_yr as election_year,
-  cand_office_st as state,
+  NULLIF(cand_office_st, '') as state,
   CASE cand_office
     WHEN 'H' THEN 'house'
     WHEN 'P' THEN 'president'
     WHEN 'S' THEN 'senate'
     ELSE 'unknown'
   END AS office,
-  cand_office_district as district,
+  NULLIF(cand_office_district, '') as district,
   CASE cand_ici
     WHEN 'C' THEN 'challenger'
     WHEN 'I' THEN 'incumbent'
     WHEN 'O' THEN 'open'
     ELSE 'unknown'
   END AS incumbent_status,
- cand_status,
- cand_pcc as principal_campaign_committee_id
+  NULLIF(cand_status, '') as cand_status,
+  NULLIF(cand_pcc, '') as principal_campaign_committee_id
 FROM raw.candidates
 WHERE cand_status IN ('C', 'N') -- actively running this cycle or filed paperwork

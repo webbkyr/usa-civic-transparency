@@ -1,8 +1,0 @@
--- ENTITY_TP lookup
--- ONLY VALID FOR ELECTRONIC FILINGS received after April 2002. CAN = Candidate
--- CCM = Candidate Committee
--- COM = Committee
--- IND = Individual (a person)
--- ORG = Organization (not a committee and not a person)
--- PAC = Political Action Committee
--- PTY = Party Organization
