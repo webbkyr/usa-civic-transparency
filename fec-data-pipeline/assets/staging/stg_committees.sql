@@ -13,3 +13,4 @@
 -- T = Trade association
 -- V = Cooperative
 -- W = Corporation without capital stock
+-- 
