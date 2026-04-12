@@ -1,0 +1,20 @@
+name: raw.party_code_lookup
+type: bq.seed
+parameters:
+  path: party_code_lookup.csv
+description: |
+  A list of party codes that can be joined on CAND_PTY_AFFILIATION or CMTE_PTY_AFFILIATION column.
+columns:
+  - name: code
+    type: VARCHAR
+    primary_key: true
+    nullable: false
+    checks:
+      - name: not_null
+      - name: unique
+  - name: description
+    type: VARCHAR
+    description: Human-readable description of the party
+    checks:
+      - name: not_null
+

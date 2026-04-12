@@ -1,0 +1,21 @@
+name: raw.committee_type_lookup
+type: bq.seed
+parameters:
+  path: committee_type_lookup.csv
+description: |
+  A list of committee type codes that can be joined on committee contributions CMTE_TP column.
+columns:
+  - name: code
+    type: VARCHAR
+    primary_key: true
+    nullable: false
+    checks:
+      - name: not_null
+      - name: unique
+  - name: type
+    type: VARCHAR
+    description: Human-readable description of the committee type
+    checks:
+      - name: not_null
+  - name: explanation
+    type: VARCHAR
