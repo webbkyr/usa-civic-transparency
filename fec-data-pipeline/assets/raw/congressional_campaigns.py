@@ -5,7 +5,6 @@ depends:
   - raw.download_fec_data
 materialization:
   type: table
-  table_name: raw.congressional_campaigns
   strategy: create+replace
 image: python:3.11
 secrets:

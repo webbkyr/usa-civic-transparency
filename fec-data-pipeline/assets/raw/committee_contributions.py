@@ -5,7 +5,6 @@ depends:
   - raw.download_fec_data
 materialization:
   type: table
-  table_name: raw.committee_contributions
   strategy: create+replace
 image: python:3.11
 secrets:
@@ -83,6 +82,8 @@ columns:
 @bruin"""
 
 # Non-individual contributions (via committees) to candidates or spending to advocate or oppose a candidate.
+# fact: money raised, how much, when
+
 import io
 import json
 import os

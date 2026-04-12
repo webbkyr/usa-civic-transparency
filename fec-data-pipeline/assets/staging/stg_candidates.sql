@@ -1,5 +1,5 @@
 /* @bruin
-name: staging.dim_candidates
+name: staging.stg_candidates
 type: bq.sql
 depends:
 - raw.candidates
@@ -49,6 +49,7 @@ columns:
     description: Campaign committee id
 
 @bruin */
+ -- cleaned, filtered, renamed
 
 
 SELECT 

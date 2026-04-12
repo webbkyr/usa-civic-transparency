@@ -38,6 +38,7 @@ def fec_files(year: int) -> list[dict]:
         {"filename": f"webl{yy}.zip", "gcs_prefix": "congressional_campaigns"},
         {"filename": f"pas2{yy}.zip", "gcs_prefix": "committee_contributions"},
         {"filename": f"cn{yy}.zip",   "gcs_prefix": "candidates"},
+        {"filename": f"cm{yy}.zip",   "gcs_prefix": "committees"},
     ]
 
 

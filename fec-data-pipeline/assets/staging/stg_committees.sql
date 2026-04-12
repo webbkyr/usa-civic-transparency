@@ -1,0 +1,15 @@
+-- Commitee designation
+-- # A = Authorized by a candidate
+-- # B = Lobbyist/Registrant PAC
+-- # D = Leadership PAC
+-- # J = Joint fundraiser
+-- # P = Principal campaign committee of a candidate
+-- # U = Unauthorized
+
+-- ORG_TP
+-- C = Corporation
+-- L = Labor organization
+-- M = Membership organization
+-- T = Trade association
+-- V = Cooperative
+-- W = Corporation without capital stock
